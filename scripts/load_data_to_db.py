@@ -16,14 +16,14 @@ engine = create_engine(
 )
 
 tables = {
-    # 'distribution_centers': 'data/distribution_centers.csv',
-    # 'inventory_events': 'data/inventory_events.csv',
-    # 'events': 'data/events_clean.csv'
-    # 'users': 'data/users_clean.csv',
-    # 'orders': 'data/orders_clean.csv',
-    # 'order_items': 'data/order_items_clean.csv',
-    # 'products': 'data/products_clean.csv'
-    'customer_segments': 'data/output_query/rfm_scored.csv'
+    # ── Step 1: Uncomment on first run to load base tables into SQL Server ──
+    # 'users':       'data/processed/users_clean.csv',
+    # 'orders':      'data/processed/orders_clean.csv',
+    # 'order_items': 'data/processed/order_items_clean.csv',
+    # 'products':    'data/processed/products_clean.csv',
+
+    # ── Step 2: Run after 02_rfm_segmentation.ipynb ───────────
+    'customer_segments': 'data/output/rfm_scored.csv'
 }
 
 for table_name, file_path in tables.items():
