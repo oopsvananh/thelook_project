@@ -2,7 +2,7 @@
 
 **Business question:** How can TheLook grow revenue by better understanding its customer segments and their product preferences?
 
-TheLook is a (fictitious) fashion eCommerce dataset covering customers, orders, products, and web events from 2019–2024. This project focuses specifically on **Customer Analysis** — understanding who customers are, how much value they generate, how they buy, and which behavioural segments matter most — in order to identify concrete growth opportunities.
+TheLook is a (fictitious) fashion eCommerce dataset covering customers, orders, and products from 2019–2024. This project focuses specifically on **Customer Analysis** — understanding who customers are, how much value they generate, how they buy, and which behavioural segments matter most — in order to identify concrete growth opportunities.
 
 ## Key Findings
 
@@ -54,7 +54,7 @@ thelook-project/
 
 ## Data
 
-This project uses the public **TheLook eCommerce** dataset (originally available via BigQuery public datasets). Only 4 tables are used for this analysis:
+This project uses the public **TheLook eCommerce** dataset (originally available via BigQuery public datasets). The analysis uses 4 tables — web events and session data are explicitly out of scope:
 
 | Table | Contents |
 |---|---|
