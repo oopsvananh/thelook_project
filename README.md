@@ -39,19 +39,17 @@ thelook-project/
 ├── README.md
 ├── requirements.txt
 ├── sql/
-│   ├── 00_business_overview.sql          # Revenue, profit, AOV, funnel
-│   ├── 01_customer_profile.sql           # Demographics, acquisition source
-│   ├── 02_customer_value.sql             # Revenue concentration (Pareto)
-│   ├── 03_purchasing_behavior.sql        # Purchase frequency distribution
-│   ├── 04_rfm_preparation.sql            # Raw R/F/M extraction
-│   ├── 05_segmentation_deepdive.sql      # Segment performance & product preference
-│   └── 06_cohort_retention.sql           # Cohort retention (validation evidence)
+│   └── customer_analysis.sql             # All SQL: profile, value, behaviour, RFM, cohort
 ├── notebooks/
+│   ├── 00_eda.ipynb                      # Exploratory data analysis
 │   ├── 01_data_cleaning.ipynb            # Clean raw CSVs
 │   └── 02_rfm_segmentation.ipynb         # RFM scoring & segment assignment
 ├── scripts/
 │   └── load_data_to_db.py                # Load cleaned CSVs into SQL Server
 └── data/                                 # Not included in repo (see below)
+    ├── raw/                              # Original CSVs from TheLook dataset
+    ├── processed/                        # Cleaned CSVs (output of 01_data_cleaning)
+    └── output/                           # Query results & RFM outputs
 ```
 
 ## Data
@@ -66,10 +64,11 @@ This project uses the public **TheLook eCommerce** dataset (originally available
 | `products` | Product info (category, cost, department) |
 
 Raw and cleaned CSVs are not included in this repo. To reproduce the analysis:
-1. Download the TheLook dataset CSVs into `data/`
-2. Run `notebooks/01_data_cleaning.ipynb`
-3. Run `sql/00` through `sql/06` in order (04 requires exporting `raw_rfm.csv` and running the RFM notebook before continuing to 05)
-4. Load `rfm_scored.csv` into your database using `scripts/load_data_to_db.py`
+1. Download the TheLook dataset CSVs into `data/raw/`
+2. Run `notebooks/00_eda.ipynb` to explore raw data
+3. Run `notebooks/01_data_cleaning.ipynb` — outputs go to `data/processed/`
+4. Run sections in `sql/customer_analysis.sql` in order (the RFM section requires exporting `raw_rfm.csv` first and running `notebooks/02_rfm_segmentation.ipynb`)
+5. Load `data/output/rfm_scored.csv` into your database using `scripts/load_data_to_db.py`
 
 ## Limitations & Future Work
 

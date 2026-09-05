@@ -1,0 +1,30 @@
+# ── SQL thô (chưa được tổ chức) ─────────────────────────────────────
+capstone_project.sql
+capstone_project_product.sql
+
+# ── Notebook nháp ────────────────────────────────────────────────────
+code.ipynb
+
+# ── Power BI reports (file nhị phân, kích thước lớn) ─────────────────
+*.pbix
+
+# ── Data (CSV gốc & đã xử lý — không lưu trong repo) ─────────────────
+data/raw/
+data/processed/
+data/output/
+
+# ── Python ───────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+venv/
+.venv/
+
+# ── Jupyter checkpoints ───────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── OS & Editor ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
