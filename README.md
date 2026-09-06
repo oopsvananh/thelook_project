@@ -70,7 +70,7 @@ Raw and cleaned CSVs are not included in this repo. To reproduce the analysis:
 4. Uncomment the 4 base-table rows in `scripts/load_data_to_db.py` and run it once to load cleaned data into SQL Server before running the SQL files
 5. Run sections in `sql/customer_analysis.sql` in order (the RFM prep section requires exporting `raw_rfm.csv` to `data/output/` before continuing)
 6. Run `notebooks/02_rfm_segmentation.ipynb` — reads `data/output/raw_rfm.csv`, outputs `data/output/rfm_scored.csv`
-7. Run `scripts/load_data_to_db.py` again (Step 2 section) to load `rfm_scored.csv` into SQL Server as `customer_segments`
+7. Run `scripts/load_data_to_db.py` again (with only `customer_segments` uncommented) to load `rfm_scored.csv` into SQL Server as `customer_segments`
 
 ## Limitations & Future Work
 
