@@ -8,10 +8,8 @@ code.ipynb
 # ── Power BI reports (file nhị phân, kích thước lớn) ─────────────────
 *.pbix
 
-# ── Data (CSV gốc & đã xử lý — không lưu trong repo) ─────────────────
-data/raw/
-data/processed/
-data/output/
+# ── Data (CSV gốc & đã xử lý) ────────────────────────────────────────
+data/raw/events.csv
 
 # ── Python ───────────────────────────────────────────────────────────
 __pycache__/

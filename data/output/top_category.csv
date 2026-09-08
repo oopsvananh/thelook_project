@@ -1,0 +1,31 @@
+segment,category,revenue,category_rank
+High-Value New,Outerwear & Coats,51017.7100315094,1
+High-Value New,Jeans,38621.04006195068,2
+High-Value New,Sweaters,22796.840003967285,3
+High-Value New,Suits & Sport Coats,20369.260085105896,4
+High-Value New,Dresses,15481.160021781921,5
+Inactive Customers,Jeans,129584.97021389008,1
+Inactive Customers,Outerwear & Coats,123447.2598400116,2
+Inactive Customers,Sweaters,80888.16007137299,3
+Inactive Customers,Fashion Hoodies & Sweatshirts,68316.20010185242,4
+Inactive Customers,Swim,62102.48006248474,5
+Lost,Outerwear & Coats,71750.50005149841,1
+Lost,Jeans,71451.29020309448,2
+Lost,Sweaters,44237.23000240326,3
+Lost,Suits & Sport Coats,37665.370056152344,4
+Lost,Swim,36940.96009349823,5
+Loyal Customers,Jeans,9396.470031738281,1
+Loyal Customers,Outerwear & Coats,7477.950002670288,2
+Loyal Customers,Sweaters,6145.619993209839,3
+Loyal Customers,Swim,6003.489988327026,4
+Loyal Customers,Suits & Sport Coats,5762.089994430542,5
+New Customers,Jeans,19316.070031166077,1
+New Customers,Fashion Hoodies & Sweatshirts,19108.200048446655,2
+New Customers,Swim,17191.19002342224,3
+New Customers,Intimates,16386.750020742416,4
+New Customers,Sweaters,16131.790019989014,5
+Repeat Buyers,Outerwear & Coats,62007.5999584198,1
+Repeat Buyers,Jeans,59686.16008377075,2
+Repeat Buyers,Sweaters,38638.26999759674,3
+Repeat Buyers,Suits & Sport Coats,31949.809935569763,4
+Repeat Buyers,Fashion Hoodies & Sweatshirts,31186.000009536743,5

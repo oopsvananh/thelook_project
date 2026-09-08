@@ -6,10 +6,11 @@ GO
 -- Customer Analysis
 
 /***
-- Business Overview và Customer Profile sử dụng định nghĩa rộng (loại Cancelled/Returned) 
-để phản ánh đúng quy mô hoạt động kinh doanh.
-- RFM Segmentation sử dụng định nghĩa hẹp hơn (chỉ Complete) vì đây là input cho quyết định hành động (targeting/marketing), 
-cần dữ liệu giao dịch đã hoàn tất chắc chắn.
+- Business Overview and Customer Profile use a broader order status definition
+  (excluding only Cancelled/Returned) to reflect overall business activity.
+- RFM Segmentation uses a narrower definition (Complete only), since this is
+  the input for actionable decisions (targeting/marketing), which requires
+  confirmed, fully completed transaction data.
 ***/
 
 
@@ -68,8 +69,8 @@ FROM monthly
 ORDER BY [year], [month] ASC;
 
 -- Customers, Orders
-SELECT COUNT(DISTINCT u.id) AS total_users, -- users đăng ký
-        COUNT(DISTINCT o.[user_id]) AS total_customers, -- users có ít nhất 1 order hợp lệ -> customers
+SELECT COUNT(DISTINCT u.id) AS total_users, -- registered users
+        COUNT(DISTINCT o.[user_id]) AS total_customers, -- users with at least 1 valid order -> customers
         COUNT(DISTINCT o.order_id) AS total_orders
 FROM users u LEFT JOIN orders o ON u.id = o.[user_id] AND o.[status] NOT IN ('Cancelled', 'Returned');
 
@@ -82,11 +83,11 @@ ORDER BY num_orders DESC;
 
 -- 1. Customer Profile 
 -- Metrics: Number of Customers, %, Revenue, AOV, Orders, Revenue Share
--- Customer behaviour nên include cả đơn Processing/Shipped, chỉ loại Cancelled/Returned
--- (vì Cancelled có thể là khách chơi, không phản ánh nhu cầu thật;
---  Returned là tiền đã hoàn lại, không còn thuộc công ty).
+-- Customer behaviour analysis should include Processing/Shipped orders, excluding only Cancelled/Returned
+-- (Cancelled may reflect casual/accidental orders that don't represent real demand;
+--  Returned means the money has already been refunded and is no longer company revenue).
 
--- Có 27.775% users có ít nhất 1 order complete
+-- 27.775% of users have at least 1 completed order
 SELECT 
     COUNT(DISTINCT u.id) AS total_registered_users,
     COUNT(DISTINCT o.user_id) AS customers_active,
@@ -99,7 +100,7 @@ LEFT JOIN orders o ON u.id = o.user_id AND o.status NOT IN ('Cancelled', 'Return
 
 
 
--- Tính customers trong số registered users
+-- Customers as a share of registered users
 -- a. Demographics
 -- Gender
 SELECT u.gender,
@@ -131,8 +132,8 @@ JOIN order_items oi ON u.id = oi.[user_id]
 JOIN orders o ON oi.order_id = o.order_id
 WHERE o.[status] NOT IN ('Cancelled', 'Returned')
 GROUP BY u.gender;
--- Số lượng cust gần như 50-50, revenue lệch nhẹ về male vì AOV cao hơn
--- Gender không ảnh hưởng đến việc thu hút khách hàng nhưng ảnh hưởng đến spending behavior 1 chút
+-- Customer count is roughly 50-50; revenue skews slightly toward male due to higher AOV
+-- Gender doesn't affect customer acquisition, but has a small effect on spending behaviour
 
 -- Age
 
@@ -176,9 +177,9 @@ JOIN orders o ON oi.order_id = o.order_id
 WHERE o.[status] NOT IN ('Cancelled', 'Returned')
 GROUP BY age_group
 ORDER BY revenue DESC;
--- AOV, Revenue/Customer gần như đồng đều giữa all groups
--- Sự khác biệt về revenue chủ yếu đến từ quy mô khách hàng (số lượng khách hàng lớn -> doanh thu cao)
--- Age không phải yếu tố phân biệt giá trị khách hàng
+-- AOV and Revenue/Customer are fairly even across all age groups
+-- Revenue differences mainly come from customer volume (more customers -> more revenue)
+-- Age is not a factor that differentiates customer value
 
 
 -- Country
@@ -211,10 +212,11 @@ JOIN order_items oi ON u.id = oi.[user_id]
 JOIN orders o ON oi.order_id = o.order_id
 WHERE o.[status] NOT IN ('Cancelled', 'Returned')
 GROUP BY u.country;
--- Customer tập trung mạnh ở ba thị trường: China, USA, Brasil
--- Các thị trường lớn tạo doanh thu lớn chủ yếu do quy mô khách hàng (thị trường lớn tạo doanh thu do có nhiều khách hàng hơn, không phải khách ở đó chi tiêu nhiều hơn)
--- Gía trị khách hàng (AOV, revenue per customer) giữa các quốc gia lớn khá đồng đều (bỏ qua các nước nhỏ
--- Một vài thị trường nhỏ hơn có spending cao hơn chút nhưng quy mô khách hàng nhỏ, đóng góp doanh thu còn hạn chế
+-- Customers are heavily concentrated in three markets: China, USA, Brazil
+-- Large markets generate large revenue mainly due to customer volume
+-- (larger markets create more revenue because they have more customers, not because customers there spend more)
+-- Customer value (AOV, revenue per customer) is fairly even across the largest markets
+-- A few smaller markets show slightly higher spending, but their small customer base limits total revenue contribution
 
 
 
@@ -250,14 +252,14 @@ JOIN orders o ON oi.order_id = o.order_id
 WHERE o.[status] NOT IN ('Cancelled', 'Returned')
 GROUP BY u.traffic_source;
 /***
-- Search là nguồn acquisition quan trọng nhất
-- Customer share và revenue share khá tuonwg đồng ở các traffic source, điều đó cho thấy sau khi users đăng ký tài khoản và mua hàng,
-giá trị họ tạo ra tương đương với sự acquisition
-- AOV giữa các nguồn khá đồng đều 
--> Traffic source ảnh hưởng nhiều đến khả năng thu hút khách hàng hơn là giá trị chi tiêu của khách hàng
+- Search is the most important acquisition channel
+- Customer share and revenue share are fairly similar across traffic sources, showing that once users
+  sign up and purchase, the value they generate is proportional to how they were acquired
+- AOV is fairly even across channels
+-> Traffic source affects customer acquisition more than it affects customer spending value
 ***/
 
--- 2. Customer Value - Giá trị/doanh thu phân phối ra sao...
+-- 2. Customer Value - How is revenue/value distributed?
 -- Overall
 SELECT
     COUNT(DISTINCT u.id) AS num_of_customers,
@@ -284,8 +286,8 @@ JOIN orders o
 JOIN order_items oi ON o.order_id = oi.order_id
 WHERE o.status = 'Complete';
 
---- Tính pareto revenue
--- Mỗi dòng là customer và revenue order desc
+--- Revenue Pareto calculation
+-- Each row is a customer with their revenue, ordered descending
 
 WITH customer_revenue AS (
     SELECT 
@@ -336,9 +338,9 @@ SELECT TOP 1
 FROM pareto_result
 WHERE cum_share >= 80
 ORDER BY customer_rank ASC;
---- 12682 khách hàng chiếm tổng 45.66% tổng customers tạo ra 80% revenue
+--- 12,682 customers (45.66% of total customers) generate 80% of total revenue
 
--- Chia khách hàng theo percentile bucket
+-- Split customers into percentile buckets
 WITH customer_revenue AS (
     SELECT u.id, SUM(oi.sale_price) AS revenue
     FROM users u
@@ -355,7 +357,7 @@ ranked AS (
 ),
 bucketed AS (
     SELECT *,
-        CEILING(rn * 20.0 / total_customers) AS bucket  -- chia 20 bucket, mỗi bucket 5%
+        CEILING(rn * 20.0 / total_customers) AS bucket  -- 20 buckets, 5% each
     FROM ranked
 )
 SELECT 
@@ -373,10 +375,10 @@ ORDER BY bucket;
 
 -- 3. Customer segmentation
 
--- Tính raw R, F, M
+-- Calculate raw R, F, M
 
 WITH snapshot_date AS (
-    SELECT DATEADD(day, 1, MAX(created_at)) AS snap_date -- ngày cuối cùng của data là 10/5/2024
+    SELECT DATEADD(day, 1, MAX(created_at)) AS snap_date -- last date in the data is 2024-05-10
     FROM orders 
 ),
 calc_rfm AS (
@@ -410,12 +412,12 @@ SELECT frequency,
 FROM calc_rfm
 GROUP BY frequency
 ORDER BY frequency;
--- frequency chỉ có từ 1 -> 4, % cust chỉ mua 1 lần áp đảo, 88.09%
--- Chỉ 11.91% khách hàng quay lại mua lần 2 trở lên
--- -> phần lớn mất khách hàng ngay sau lần mua đầu tiên
--- -> Vấn đề retention kém
+-- Frequency only ranges from 1 to 4; the % of customers who purchase only once dominates at 88.09%
+-- Only 11.91% of customers return for a 2nd purchase or more
+-- -> Most customers are lost right after their first purchase
+-- -> A significant retention problem
 
--- Các nhóm frequency mang lại bao nhiêu revenue?
+-- How much revenue does each frequency group generate?
 WITH snapshot_date AS (
     SELECT DATEADD(day, 1, MAX(created_at)) AS snap_date FROM orders 
 ),
@@ -436,10 +438,10 @@ SELECT
     ROUND(SUM(monetary)*100.0/SUM(SUM(monetary)) OVER(), 2) AS pct_revenue
 FROM calc_rfm
 GROUP BY CASE WHEN frequency = 1 THEN '1' ELSE '2+' END;
--- Nhóm khách hàng mua 1 lần vẫn đóng góp phần lớn revenue vì họ chiếm số đông
--- Rev per cust của 2+ có giá trị trung bình gấp hơn 2 lần so với khách hàng chỉ mua 1 lần tuy số lượng khách hàng chỉ chiếm 11.91%
--- -> Acquisition vẫn là động lực doanh thu chính do quy mô
--- -> Đầu tư vào retention mang lại giá trị trên từng khách hàng cao hơn đáng kể
+-- Customers who purchase only once still contribute the majority of revenue simply because they are the majority of customers
+-- Revenue per customer for the 2+ group is more than 2x higher than the 1-time group, despite only being 11.91% of customers
+-- -> Acquisition remains the main revenue driver due to sheer volume
+-- -> Investing in retention delivers significantly higher value per customer
 
 SELECT AVG(num_of_item*1.0) AS avg_items_per_order
 FROM orders
@@ -447,7 +449,7 @@ WHERE status = 'Complete';
 
 
 
--- Các segments của customers
+-- Customer segments
 SELECT * FROM customer_segments
 
 -- Segment Performance
@@ -469,10 +471,11 @@ SELECT segment,
 FROM customer_segments
 GROUP BY segment
 ;
--- Loyal customers có revenue/customer cao -> cho thấy việc khách hàng trung thành mang lại giá trị cao dù chỉ chiếm số lượng nhỏ
--- High-value Newlaf nhóm khách hàng mới mua lần đầu nhưng revenue/customer của họ cũng cao -> tiềm năng. Vì vậy, nếu convert họ thành loyal customers thì sẽ rất tốt -> khuyến khích mua lần 2 ....
--- Lost và Inactive chiếm số lượng lớn, revenue tổng chiếm 60% -> kéo performance xuống. Cần tìm chiến lược để kéo Inactive Customers lại...
--- Còn Lost thì quá lâu 
+-- Loyal Customers have high revenue/customer -> shows that loyal customers deliver high value despite being a small group
+-- High-Value New (first-time buyers) also show high revenue/customer -> a promising segment.
+--   Converting them into Loyal Customers would be valuable -> encourage a second purchase, etc.
+-- Lost and Inactive customers make up a large share, contributing ~60% of total revenue -> dragging down overall performance.
+--   Need a strategy to win back Inactive Customers... Lost customers have been gone too long to realistically target.
 
 -- Basket 
 SELECT 
@@ -487,12 +490,13 @@ JOIN orders o ON cs.customer_id = o.user_id
 JOIN order_items oi ON o.order_id = oi.order_id
 WHERE o.status = 'Complete'
 GROUP BY cs.segment;
--- Basket size không phải yếu tố phân biệt Loyal Customers với khách hàng rời bỏ - sự khác biệt nằm ở tần suất quay lại, không phải quy mô đơn hàng. (Basket size giữa các segments tương đương nhau)
--- Loyal Customers không có AOV cao nhất, họ tạo value nhờ purchase frequency cao hơn
+-- Basket size is not what differentiates Loyal Customers from churned customers -- the difference lies in
+-- purchase frequency, not order size (basket size is similar across segments)
+-- Loyal Customers don't have the highest AOV; their value comes from a higher purchase frequency
 
 
 
--- Deepdive - Focus on segments: High-value New, Loyal Customers và Inactive
+-- Deep-dive - Focus on segments: High-Value New, Loyal Customers, and Inactive
 
 -- Demographics, acquisition source, product preferences
 -- a. Loyal customers
@@ -551,10 +555,10 @@ SELECT u.traffic_source,
 FROM customer_segments c JOIN users u ON c.customer_id = u.id
 WHERE segment = 'Inactive Customers'
 GROUP BY u.traffic_source;
--- Loyal Customers giống hệt baseline ở cả 4 chiều (gender, country, age, traffic source)
--- Tương tự với các segments khác
+-- Inactive Customers look identical to the overall baseline across all 4 dimensions (gender, country, age, traffic source)
+-- Same pattern holds for the other segments
 
--- Deep-dive theo product preference
+-- Deep-dive by product preference
 SELECT 
     cs.segment,
     p.department,
@@ -568,7 +572,7 @@ JOIN products p ON oi.product_id = p.id
 WHERE o.status = 'Complete'
 GROUP BY cs.segment, p.department
 ORDER BY cs.segment, revenue DESC;
--- Department gần như đồng đều ở các segments
+-- Department split is fairly even across segments
 
 
 SELECT 
@@ -586,18 +590,21 @@ GROUP BY cs.segment, p.category
 ORDER BY cs.segment, revenue DESC;
 
 /*** 
-- Outerwear & Coats (áo khoác) thường có retail price cao hơn các category khác (Socks, Underwear, Accessories...), 
-điều này giải thích được việc khách hàng mua nhiều Outerwear & Coats trong đơn đầu tiên dễ rơi vào nhóm "High-Value New"
--> họ mua sản phẩm giá trị cao ngay từ đầu
-- Loyal Customers (mua ≥3 lần) có tỷ trọng top 3 category thấp nhất (28.17%) so với các segments trên - 
-điều này cho thấy qua nhiều lần mua khác nhau, họ có xu hướng mua đa dạng category hơn thay vì chỉ tập trung vào 1-2 loại.
--> basket mở rộng over time, khách hàng trung thành không chỉ mua lặp lại cùng 1 loại sản phẩm, mà khám phá thêm các category khác của platform.
-- Cả 5 segment đều thống nhất Top 3 category (Jeans, Outerwear & Coats, Sweaters) trừ New customers có Jeans top 1
--> core categories của toàn platform
+- Outerwear & Coats typically have a higher retail price than other categories (Socks, Underwear, Accessories...),
+  which explains why customers who buy a lot of Outerwear & Coats in their first order tend to fall into the
+  "High-Value New" segment -> they buy high-value products right from the start
+- Loyal Customers (3+ purchases) have the lowest top-3 category revenue share (28.17%) of any segment --
+  this shows that across multiple purchases, they tend to buy a more diverse mix of categories rather than
+  concentrating on just 1-2 categories.
+-> Their basket expands over time -- loyal customers don't just repeat-buy the same product type, they explore
+  more categories across the platform.
+- All 5 segments agree on the same top-3 categories (Jeans, Outerwear & Coats, Sweaters), except New Customers,
+  whose #1 category is Jeans
+-> These are the platform's core categories overall
 ***/
 
 
--- Top 5 categories according to each segment
+-- Top 5 categories per segment
 WITH ranked_category AS (
     SELECT 
         cs.segment,
@@ -627,7 +634,7 @@ GROUP BY p.category
 ORDER BY COUNT(DISTINCT oi.[user_id]) DESC;
 
 
--- Kiểm tra % Revenue Top 3 Category theo từng segment
+-- Check % revenue from top 3 categories per segment
 WITH category_revenue AS (
     SELECT 
         cs.segment,
@@ -735,4 +742,3 @@ SELECT
 FROM retention r
 JOIN cohort_size cs ON r.cohort_quarter_date = cs.cohort_quarter_date
 ORDER BY r.cohort_quarter_date, r.period_offset;
-
